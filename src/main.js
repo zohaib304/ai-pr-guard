@@ -1,27 +1,39 @@
 import * as core from '@actions/core'
-import { wait } from './wait.js'
+import * as github from '@actions/github'
 
-/**
- * The main function for the action.
- *
- * @returns {Promise<void>} Resolves when the action is complete.
- */
 export async function run() {
   try {
-    const ms = core.getInput('milliseconds')
+    // Must match action.yml input id exactly
+    const token = core.getInput('github_token', { required: true }) // or 'github-token'
+    const octokit = github.getOctokit(token)
 
-    // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-    core.debug(`Waiting ${ms} milliseconds ...`)
+    const { owner, repo } = github.context.repo
 
-    // Log the current timestamp, wait, then log the new timestamp
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
+    // pull_request is an object; .number is the PR number
+    const prNumber = github.context.payload.pull_request?.number ?? github.context.payload.number
 
-    // Set outputs for other workflow steps to use
-    core.setOutput('time', new Date().toTimeString())
+    if (!prNumber) {
+      core.setFailed('This action must run on pull_request events.')
+      return
+    }
+
+    const files = await octokit.paginate(octokit.rest.pulls.listFiles, {
+      owner,
+      repo,
+      pull_number: prNumber,
+      per_page: 100
+    })
+
+    const body = [
+      '## AI PR Guard',
+      '',
+      `PR: #${prNumber}`,
+      `Changed files: ${files.length}`
+    ].join('\n')
+
+    core.setOutput('comment_body', body)
+    core.info(`Computed report for ${owner}/${repo}#${prNumber}`)
   } catch (error) {
-    // Fail the workflow run if an error occurs
     if (error instanceof Error) core.setFailed(error.message)
   }
 }

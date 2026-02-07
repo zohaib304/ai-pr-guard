@@ -1,5 +1,5 @@
 {
-  "name": "javascript-action",
+  "name": "ai-pr-guard",
   "description": "GitHub Actions JavaScript Template",
   "version": "0.0.0",
   "author": "",
@@ -37,7 +37,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.11.1"
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^9.0.0"
   },
   "devDependencies": {
     "@eslint/compat": "^1.4.0",

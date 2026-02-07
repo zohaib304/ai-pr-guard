@@ -1,23 +1,19 @@
-name: The name of your action here
-description: Provide a description here
-author: Your name or organization here
+name: ai-pr-guard
+description: PR safety report for AI-generated code (solo makers)
+author: <your name or org>
 
-# Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
-  icon: heart
-  color: red
+  icon: shield
+  color: blue
 
-# Define your inputs here.
 inputs:
-  milliseconds:
-    description: Your input description here
+  github_token:
+    description: GitHub token (use secrets.GITHUB_TOKEN)
     required: true
-    default: '1000'
 
-# Define your outputs here.
 outputs:
-  time:
-    description: Your output description here
+  comment_body:
+    description: Markdown PR safety report
 
 runs:
   using: node24
